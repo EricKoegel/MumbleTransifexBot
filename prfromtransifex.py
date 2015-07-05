@@ -32,7 +32,7 @@
 """
 Meant to be run regularily as part of a user cronjob. Pulls updated translations from
 transifex and if anything relevant changed creates a pull request with the translation
-update to the mumble master repository.
+update to the ConsoleKit2 master repository.
 """
 
 import ConfigParser
@@ -78,7 +78,7 @@ def createNewPullRequest(g,
 
 if __name__ == "__main__":
     parent_parser = ArgumentParser(
-        description = 'Create pull requests to mumble from transifex translation updates',
+        description = 'Create pull requests to ConsoleKit2 from transifex translation updates',
         epilog = __doc__)
     
     parent_parser.add_argument('-c', '--config', help = 'Configuration file (default: %(default)s)', default = '/etc/prfromtransifex.ini')
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         debug(txout)
         
         # Add all .po files tx pull got to repo
-        paths, files = zip(*re.findall(r"^\s->\s[\w_]+:\s([\w/\_]+/([\w_]+\.ts))$", txout, flags=re.MULTILINE))
+        paths, files = zip(*re.findall(r"^\s->\s[\w_]+:\s([\w/\_]+/([\w_]+\.po))$", txout, flags=re.MULTILINE))
         debug(git["add"](*paths))
 
         # Check if the repo changed
@@ -175,12 +175,11 @@ if __name__ == "__main__":
         
         debug("Changed files: %s", " ".join(os.linesep.split(changedfiles)))
     
-        info("Things changed & force pushing")
+        info("Things changed & pushing")
         debug(git["commit", "-m", pr_commit % {'mode': mode,
-                            'minpercent': minpercent,
                             'langcount': len(files)}]())
         
-        debug(git["push", "-f", "origin", wr_branch]())
+        debug(git["push", "origin", wr_branch]())
     
     if not pr:
         info("No existing PR, creating new one")
